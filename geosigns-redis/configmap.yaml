@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geosigns-redis
+data:
+  redis.conf: |+
+    dir /data
+    save 1 1
+    protected-mode no

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: geosigns-redis
+spec:
+  serviceName: geosigns-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geosigns-redis
+  volumeClaimTemplates: []
+  template:
+    metadata:
+      labels:
+        app: geosigns-redis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "256m"
+          limits:
+            memory: "2Gi"
+            cpu: "1024m"
+        ports:
+        - containerPort: 6379
+          name: client
+        - containerPort: 16379
+          name: gossip
+        command: ["redis-server", "/conf/redis.conf"]
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: conf
+          mountPath: /conf
+          readOnly: false
+        - name: data
+          mountPath: /data
+          readOnly: false
+      # Runs the redis_exporter as a sidecar to the Redis instance
+      - name: redis-exporter
+        image: oliver006/redis_exporter:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 9121
+      volumes:
+      - name: conf
+        configMap:
+          name: geosigns-redis
+          defaultMode: 0755
+      - name: data
+        hostPath:
+          path: /
