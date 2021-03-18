@@ -61,4 +61,4 @@ spec:
           defaultMode: 0755
       - name: data
         hostPath:
-          path: /
+          path: /redis-data

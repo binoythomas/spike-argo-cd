@@ -1,3 +1,0 @@
-- op: replace
-  path: /spec/template/spec/volumes/1/hostPath/path
-  value: /Users/bthomas/Workspace/geosigns/geosigns-zoraster-gridder/redis-data
